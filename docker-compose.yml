@@ -1,0 +1,57 @@
+version: '3'
+services:
+    # scrapinghub/splash: https://hub.docker.com/r/scrapinghub/splash
+    splash-server:
+      image: scrapinghub/splash:latest
+      ports:
+        # splash-server web interface and REST API
+        - 8050:8050
+      networks:
+        splash-net:
+          aliases:
+            - splash-api-server      
+    # scraper_airbnb: https://github.com/fortiz303/scraper_airbnb
+    scraper_airbnb-berlin:
+      depends_on: 
+        - splash-server
+      image: scraper_airbnb:latest
+      build:
+        context: .
+        dockerfile: Dockerfile
+      environment:
+        - scraper_airbnb_city=berlin
+        - scraper_airbnb_lb=20
+        - scraper_airbnb_ub=300
+        - scraper_airbnb_checkin=2022-08-10
+        - scraper_airbnb_checkout=2022-08-15
+        - scraper_airbnb_newonly=N
+      volumes:
+        - "scraper_airbnb_data:/app/data" # Docker named volume
+        #- "C:/Users/kerem/Desktop/Upwork/Francisco Ortiz/scraper_airbnb/data:/app/data" # Windows style mount volume
+        #- "./data:/app/data" # Linux style mount volume
+      networks:
+        - splash-net
+    scraper_airbnb-tokyo:
+      depends_on: 
+        - splash-server
+      image: scraper_airbnb:latest
+      build:
+        context: .
+        dockerfile: Dockerfile
+      environment:
+        - scraper_airbnb_city=tokyo
+        - scraper_airbnb_lb=20
+        - scraper_airbnb_ub=100
+        - scraper_airbnb_checkin=2022-06-27
+        - scraper_airbnb_checkout=2022-06-28
+        - scraper_airbnb_newonly=N
+      volumes:
+        - "scraper_airbnb_data:/app/data" # Docker named volume
+        #- "C:/Users/kerem/Desktop/Upwork/Francisco Ortiz/scraper_airbnb/data:/app/data" # Windows style mount volume
+        #- "./data:/app/data" # Linux style mount volume
+      networks:
+        - splash-net
+networks:
+    splash-net:
+volumes:
+  scraper_airbnb_data:
